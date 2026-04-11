@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>PilotSense AUTH</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #0f172a; padding: 2rem; }
+    .wrap { max-width: 860px; margin: 0 auto; }
+
+    .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+    .case-badge { font-size: 10px; letter-spacing: 0.12em; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
+    .case-title { font-size: 16px; font-weight: 600; color: #0f172a; }
+    .case-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
+    .status-pill { font-size: 11px; padding: 4px 12px; border-radius: 99px; background: #FAEEDA; color: #BA7517; border: 0.5px solid #EF9F27; font-weight: 500; white-space: nowrap; }
+    .status-pill.unlocked { background: #E1F5EE; color: #085041; border-color: #1D9E75; }
+
+    .info-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin-bottom: 1.5rem; }
+    .info-card { background: #f1f5f9; border-radius: 8px; padding: 10px 12px; }
+    .info-label { font-size: 10px; color: #64748b; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+    .info-value { font-size: 12px; font-weight: 500; color: #0f172a; font-family: 'IBM Plex Mono', monospace; }
+
+    .divider { height: 0.5px; background: #e2e8f0; margin-bottom: 1.5rem; }
+    .section-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; margin-bottom: 12px; }
+
+    .parties-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin-bottom: 1.5rem; }
+
+    .party-card { background: #fff; border: 0.5px solid #e2e8f0; border-radius: 12px; padding: 1rem; transition: all 0.2s; cursor: pointer; }
+    .party-card:hover { border-color: #cbd5e1; }
+    .party-card.approved { border: 1.5px solid #1D9E75; background: #E1F5EE; cursor: default; }
+    .party-card.rejected { border: 1.5px solid #E24B4A; background: #FCEBEB; animation: shake 0.3s; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+
+    .party-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .party-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 7px; font-weight: 600; background: #f1f5f9; color: #64748b; border: 0.5px solid #e2e8f0; font-family: 'IBM Plex Mono', monospace; text-align: center; line-height: 1.2; letter-spacing: 0; }
+    .party-card.approved .party-avatar { background: #1D9E75; color: white; border-color: #1D9E75; }
+    .party-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #EF9F27; margin-top: 4px; }
+    .party-card.approved .party-status-dot { background: #1D9E75; }
+    .party-card.rejected .party-status-dot { background: #E24B4A; }
+
+    .party-name { font-size: 13px; font-weight: 600; color: #0f172a; margin-bottom: 1px; }
+    .party-role { font-size: 10px; color: #64748b; line-height: 1.4; margin-bottom: 6px; }
+    .party-geo { font-size: 10px; color: #94a3b8; font-family: 'IBM Plex Mono', monospace; margin-bottom: 8px; }
+    .party-card.approved .party-geo { color: #0F6E56; }
+
+    .party-hash { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #0F6E56; background: #9FE1CB33; padding: 4px 6px; border-radius: 4px; margin-bottom: 6px; word-break: break-all; display: none; }
+    .party-card.approved .party-hash { display: block; }
+
+    .party-ts { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #0F6E56; margin-bottom: 8px; display: none; }
+    .party-card.approved .party-ts { display: block; }
+
+    .party-btn { width: 100%; padding: 6px; border-radius: 8px; border: 0.5px solid #cbd5e1; background: transparent; color: #0f172a; cursor: pointer; font-size: 12px; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .party-btn:hover { background: #f1f5f9; }
+    .party-approved-label { font-size: 11px; color: #085041; font-weight: 500; text-align: center; display: none; }
+    .party-card.approved .party-approved-label { display: block; }
+    .party-card.approved .party-btn { display: none; }
+
+    .progress-section { margin-bottom: 1.5rem; }
+    .progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .progress-dots { display: flex; gap: 6px; }
+    .prog-dot { width: 10px; height: 10px; border-radius: 50%; background: #f1f5f9; border: 0.5px solid #cbd5e1; transition: all 0.3s; }
+    .prog-dot.active { background: #1D9E75; border-color: #0F6E56; }
+    .progress-count { font-size: 12px; color: #64748b; font-family: 'IBM Plex Mono', monospace; }
+    .progress-bg { height: 4px; background: #f1f5f9; border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 99px; background: #1D9E75; transition: width 0.5s ease; width: 0%; }
+
+    .log-section { margin-bottom: 1.5rem; }
+    .log-box { background: #0f1923; border-radius: 12px; padding: 14px 16px; min-height: 140px; max-height: 200px; overflow-y: auto; border: 0.5px solid #1e2d3d; }
+    .log-line { font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 2; display: flex; gap: 8px; }
+    .log-ts { color: #3d5a72; min-width: 76px; }
+    .log-tag { min-width: 72px; }
+    .log-msg { color: #7CA9C9; }
+    .log-line.ok .log-tag { color: #5DCAA5; }
+    .log-line.ok .log-msg { color: #9FE1CB; }
+    .log-line.warn .log-tag { color: #FAC775; }
+    .log-line.warn .log-msg { color: #FAC775; }
+    .log-line.err .log-tag { color: #F09595; }
+    .log-line.err .log-msg { color: #F09595; }
+    .log-line.dim .log-tag { color: #3d5a72; }
+    .log-line.dim .log-msg { color: #3d5a72; }
+
+    .unlock-panel { display: none; background: #0A1A12; border: 1.5px solid #1D9E75; border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem; }
+    .unlock-panel.show { display: block; animation: fadeIn 0.5s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    .unlock-header { background: #0F2D1A; padding: 10px 16px; display: flex; justify-content: space-between; border-bottom: 0.5px solid #1D9E7566; }
+    .unlock-hl { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5DCAA5; letter-spacing: 0.08em; }
+    .unlock-hr { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #1D9E75; }
+    .unlock-cols { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 0.5px solid #1D9E7522; }
+    .unlock-col { padding: 14px 16px; }
+    .unlock-col:first-child { border-right: 0.5px solid #1D9E7522; }
+    .ucol-title { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #5a8a73; margin-bottom: 8px; letter-spacing: 0.08em; }
+    .urow { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 0.5px solid #1D9E7511; }
+    .urow:last-child { border-bottom: none; }
+    .ukey { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #5a8a73; }
+    .uval { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #5DCAA5; }
+    .uval.decrypt-anim { color: #FAC775; }
+    .unlock-records { padding: 12px 16px; border-bottom: 0.5px solid #1D9E7522; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #5DCAA5; line-height: 2; }
+    .unlock-footer { background: #0F2D1A; padding: 8px 16px; display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: #3d7a60; letter-spacing: 0.06em; }
+
+    .reset-btn { width: 100%; padding: 8px; border-radius: 8px; border: 0.5px solid #e2e8f0; background: transparent; color: #64748b; cursor: pointer; font-size: 13px; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .reset-btn:hover { background: #f1f5f9; }
+
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.5); z-index: 100; align-items: center; justify-content: center; }
+    .overlay.show { display: flex; }
+    .modal { background: #fff; border-radius: 16px; padding: 1.5rem; width: 360px; border: 0.5px solid #e2e8f0; }
+    .modal-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; color: #0f172a; }
+    .modal-sub { font-size: 12px; color: #64748b; margin-bottom: 1rem; }
+    .modal-geo { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #475569; background: #f1f5f9; padding: 10px 12px; border-radius: 8px; margin-bottom: 1rem; line-height: 1.9; white-space: pre; }
+    .modal-lbl { font-size: 10px; color: #64748b; margin-bottom: 4px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .modal-inp { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #e2e8f0; font-family: 'IBM Plex Mono', monospace; font-size: 15px; letter-spacing: 0.2em; color: #0f172a; margin-bottom: 4px; text-transform: uppercase; background: #fff; }
+    .modal-inp:focus { outline: none; border-color: #2563eb; }
+    .modal-hint { font-size: 10px; color: #94a3b8; font-family: 'IBM Plex Mono', monospace; margin-bottom: 1rem; }
+    .modal-err { font-size: 11px; color: #A32D2D; margin-bottom: 8px; display: none; }
+    .modal-btns { display: flex; gap: 8px; }
+    .mbtn { flex: 1; padding: 8px; border-radius: 8px; border: 0.5px solid #e2e8f0; background: transparent; color: #64748b; cursor: pointer; font-size: 13px; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .mbtn.primary { background: #2563eb; color: white; border-color: #2563eb; }
+    .mbtn.primary:hover { background: #1d4ed8; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header-row">
+    <div>
+      <div class="case-badge">CDSA · Aşama 1 · Olay Dosyası #2026-041</div>
+      <div class="case-title">Kriptografik Çoklu İmza Protokolü</div>
+      <div class="case-sub" style="font-size:11px;">TC-XXX · B737-800 · LTBA/IST → LTBJ/ESB · 10 Nis 2026 · 14:31Z</div>
+    </div>
+    <div class="status-pill" id="status-pill">Kilit Aktif</div>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-card"><div class="info-label">Şifreleme</div><div class="info-value">AES-256-GCM</div></div>
+    <div class="info-card"><div class="info-label">Eşik Şeması</div><div class="info-value">3 / 3</div></div>
+    <div class="info-card"><div class="info-label">Veri Boyutu</div><div class="info-value">14.7 MB</div></div>
+    <div class="info-card"><div class="info-label">Protokol</div><div class="info-value">ICAO Ek-13</div></div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">Yetkili Taraflar — Yetki Kodu ile Onay Gerekiyor</div>
+
+  <div class="parties-grid">
+    <div class="party-card" id="card-0" onclick="openModal(0)">
+      <div class="party-header">
+        <div class="party-avatar" id="av-0">SHGM<br>2026</div>
+        <div class="party-status-dot"></div>
+      </div>
+      <div class="party-name">SHGM</div>
+      <div class="party-role">Sivil Havacılık Genel Müdürlüğü</div>
+      <div class="party-geo">Ankara, TR · 39.9208°N 32.8541°E</div>
+      <div class="party-hash" id="hash-0"></div>
+      <div class="party-ts" id="ts-0"></div>
+      <button class="party-btn">Yetki Kodunu Gir</button>
+      <div class="party-approved-label">✓ İmza Doğrulandı</div>
+    </div>
+    <div class="party-card" id="card-1" onclick="openModal(1)">
+      <div class="party-header">
+        <div class="party-avatar" id="av-1">IFAL<br>2026</div>
+        <div class="party-status-dot"></div>
+      </div>
+      <div class="party-name">IFALPA</div>
+      <div class="party-role">Uluslararası Pilotlar Dernekleri Federasyonu</div>
+      <div class="party-geo">Montréal, CA · 45.5017°N 73.5673°W</div>
+      <div class="party-hash" id="hash-1"></div>
+      <div class="party-ts" id="ts-1"></div>
+      <button class="party-btn">Yetki Kodunu Gir</button>
+      <div class="party-approved-label">✓ İmza Doğrulandı</div>
+    </div>
+    <div class="party-card" id="card-2" onclick="openModal(2)">
+      <div class="party-header">
+        <div class="party-avatar" id="av-2">NTSB<br>2026</div>
+        <div class="party-status-dot"></div>
+      </div>
+      <div class="party-name">NTSB</div>
+      <div class="party-role">Bağımsız Kaza Soruşturma Kurulu</div>
+      <div class="party-geo">Washington DC, US · 38.8951°N 77.0364°W</div>
+      <div class="party-hash" id="hash-2"></div>
+      <div class="party-ts" id="ts-2"></div>
+      <button class="party-btn">Yetki Kodunu Gir</button>
+      <div class="party-approved-label">✓ İmza Doğrulandı</div>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-top">
+      <div class="progress-dots">
+        <div class="prog-dot" id="pd-0"></div>
+        <div class="prog-dot" id="pd-1"></div>
+        <div class="prog-dot" id="pd-2"></div>
+      </div>
+      <div class="progress-count" id="prog-count">0 / 3 onay tamamlandı</div>
+    </div>
+    <div class="progress-bg"><div class="progress-fill" id="prog-fill"></div></div>
+  </div>
+
+  <div class="log-section">
+    <div class="section-label">Güvenli Sistem Logu</div>
+    <div class="log-box" id="log-box"></div>
+  </div>
+
+  <div class="unlock-panel" id="unlock-panel">
+    <div class="unlock-header">
+      <div class="unlock-hl">▶ ERİŞİM AÇILDI · CDSA PROTOKOLÜ · 3/3 ONAY</div>
+      <div class="unlock-hr" id="unlock-time"></div>
+    </div>
+    <div class="unlock-cols">
+      <div class="unlock-col">
+        <div class="ucol-title">DOSYA BİLGİSİ</div>
+        <div class="urow"><div class="ukey">DOSYA</div><div class="uval">TC-XXX_bio_2026-04-10.enc</div></div>
+        <div class="urow"><div class="ukey">BOYUT</div><div class="uval">14.7 MB · 1,847 kayıt</div></div>
+        <div class="urow"><div class="ukey">ŞİFRE ÇÖZÜCü</div><div class="uval blink" id="decrypt-key">Hesaplanıyor...</div></div>
+        <div class="urow"><div class="ukey">CHECKSUM</div><div class="uval">md5:3f9a...c72b ✓</div></div>
+      </div>
+      <div class="unlock-col">
+        <div class="ucol-title">TANISSAL VERİ</div>
+        <div class="urow"><div class="ukey">HRV ORT.</div><div class="uval">42 ms · −8% baseline</div></div>
+        <div class="urow"><div class="ukey">SpO₂ MİN.</div><div class="uval">%91 · 14:32Z descent</div></div>
+        <div class="urow"><div class="ukey">STRES İND.</div><div class="uval">81/100 · Approach faz</div></div>
+        <div class="urow"><div class="ukey">BULGU</div><div class="uval">Sinsi hipoksi tespit edildi</div></div>
+      </div>
+    </div>
+    <div class="unlock-records" id="approval-records"></div>
+    <div class="unlock-footer">
+      <span>■ GDPR MD.25 UYUMLU · ADİL KÜLTÜR GÜVENCE AKTİF</span>
+      <span>ICAO EK-13 REF · ERİŞİM LOGU OLUŞTURULDU</span>
+    </div>
+  </div>
+
+  <button class="reset-btn" onclick="reset()">Sıfırla</button>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-sub">Biyometrik veriye erişim onayı için kurumsal yetki kodunuzu girin.</div>
+    <div class="modal-geo" id="modal-geo"></div>
+    <div class="modal-lbl">Yetki Kodu</div>
+    <input type="text" class="modal-inp" id="modal-inp" maxlength="9" placeholder="XXXX-XXXX" oninput="fmt(this)" onkeydown="handleKey(event)">
+    <div class="modal-hint" id="modal-hint"></div>
+    <div class="modal-err" id="modal-err">Geçersiz yetki kodu. Lütfen tekrar deneyin.</div>
+    <div class="modal-btns">
+      <button class="mbtn" onclick="closeModal()">İptal</button>
+      <button class="mbtn primary" onclick="submitCode()">Doğrula ve İmzala</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const approved = [false,false,false];
+  const hashes = ['a3f9c2d1e8b74f6a9c3d','c71e4a2b9d8f3e5c7a1b','f2b8e1d4c9a7f3b2d6e9'];
+  const codes = ['SHGM2026','IFAL2026','NTSB2026'];
+  const names = ['SHGM','IFALPA','NTSB'];
+  const hints = ['İpucu: SHGM-XXXX','İpucu: IFAL-XXXX','İpucu: NTSB-XXXX'];
+  const geoTexts = [
+    'Kurum : SHGM Genel Müdürlüğü\nKonum : Ankara, Türkiye\nKoord : 39.9208°N, 32.8541°E\nİP Adr: 193.140.xxx.xxx [TR-GOV]\nOturum: #SHG-20260410-0931',
+    'Kurum : IFALPA Headquarters\nKonum : Montréal, Kanada\nKoord : 45.5017°N, 73.5673°W\nİP Adr: 142.44.xxx.xxx [CA-ORG]\nOturum: #IFA-20260410-0931',
+    'Kurum : NTSB Washington HQ\nKonum : Washington DC, ABD\nKoord : 38.8951°N, 77.0364°W\nİP Adr: 74.125.xxx.xxx [US-GOV]\nOturum: #NTS-20260410-0931'
+  ];
+  const locs = ['Ankara,TR','Montréal,CA','Washington,US'];
+  const approvalRecs = [];
+  let active = -1;
+  let t0 = Date.now();
+
+  function ts() {
+    const e = Math.floor((Date.now()-t0)/1000);
+    return String(Math.floor(e/3600)).padStart(2,'0')+':'+String(Math.floor((e%3600)/60)).padStart(2,'0')+':'+String(e%60).padStart(2,'0');
+  }
+  function utc() { return new Date().toISOString().replace('T',' ').slice(0,19)+'Z'; }
+
+  function addLog(tag,msg,cls) {
+    const box = document.getElementById('log-box');
+    const el = document.createElement('div');
+    el.className='log-line'+(cls?' '+cls:'');
+    el.innerHTML='<span class="log-ts">['+ts()+']</span><span class="log-tag">'+tag+'</span><span class="log-msg">'+msg+'</span>';
+    box.appendChild(el);
+    box.scrollTop=box.scrollHeight;
+  }
+
+  function openModal(i) {
+    if(approved[i]) return;
+    active=i;
+    document.getElementById('modal-title').textContent=names[i]+' · Yetki Doğrulama';
+    document.getElementById('modal-geo').textContent=geoTexts[i];
+    document.getElementById('modal-hint').textContent=hints[i];
+    document.getElementById('modal-inp').value='';
+    document.getElementById('modal-err').style.display='none';
+    document.getElementById('overlay').classList.add('show');
+    setTimeout(()=>document.getElementById('modal-inp').focus(),100);
+    addLog(names[i],'Yetki doğrulama penceresi açıldı · '+locs[i],'warn');
+  }
+
+  function closeModal() {
+    document.getElementById('overlay').classList.remove('show');
+    active=-1;
+  }
+
+  function fmt(el) {
+    let v=el.value.replace(/[^a-zA-Z0-9]/g,'').toUpperCase();
+    if(v.length>4) v=v.slice(0,4)+'-'+v.slice(4,8);
+    el.value=v;
+  }
+
+  function handleKey(e) {
+    if(e.key==='Enter') submitCode();
+    if(e.key==='Escape') closeModal();
+  }
+
+  function submitCode() {
+    const i=active; if(i<0) return;
+    const inp=document.getElementById('modal-inp').value.replace('-','').toUpperCase();
+    if(inp!==codes[i]) {
+      document.getElementById('modal-err').style.display='block';
+      document.getElementById('card-'+i).classList.add('rejected');
+      addLog(names[i],'HATA · Geçersiz yetki kodu · Erişim reddedildi','err');
+      setTimeout(()=>document.getElementById('card-'+i).classList.remove('rejected'),600);
+      return;
+    }
+    closeModal();
+    doApprove(i);
+  }
+
+  function doApprove(i) {
+    approved[i]=true;
+    const t=ts(), u=utc();
+    document.getElementById('card-'+i).classList.add('approved');
+    document.getElementById('hash-'+i).textContent='SHA-256: '+hashes[i];
+    document.getElementById('ts-'+i).textContent='⏱ '+u+' · '+locs[i];
+    const count=approved.filter(Boolean).length;
+    document.getElementById('pd-'+(count-1)).classList.add('active');
+    document.getElementById('prog-fill').style.width=Math.round((count/3)*100)+'%';
+    document.getElementById('prog-count').textContent=count+' / 3 onay tamamlandı';
+    addLog(names[i],'Yetki kodu doğrulandı · Kriptografik imza oluşturuluyor','ok');
+    addLog(names[i],'SHA-256: '+hashes[i],'ok');
+    addLog(names[i],'Konum: '+locs[i]+' · Zaman: '+u,'ok');
+    approvalRecs.push('✓ '+names[i]+' · SHA-256:'+hashes[i].slice(0,12)+'... · '+u+' · '+locs[i]);
+    if(count===3) {
+      setTimeout(()=>{
+        addLog('SİSTEM','3/3 eşiği aşıldı · Shamir anahtar birleştirme başlatıldı','warn');
+        setTimeout(()=>{
+          addLog('SİSTEM','AES-256-GCM deşifre tamamlandı · 14.7 MB / 1847 kayıt açıldı','ok');
+          addLog('SİSTEM','Tanısal bulgular erişime hazır · Sinsi hipoksi tespit edildi','ok');
+          addLog('GDPR','MD.25 uyumlu erişim logu oluşturuldu · ICAO EK-13 referanslandı','ok');
+          addLog('GÜVENLİK','Adil Kültür güvencesi aktif · Veri salt soruşturma amaçlı','ok');
+          document.getElementById('status-pill').textContent='Kilit Açıldı';
+          document.getElementById('status-pill').classList.add('unlocked');
+          document.getElementById('unlock-time').textContent=utc();
+          document.getElementById('approval-records').innerHTML=approvalRecs.join('<br>');
+          document.getElementById('unlock-panel').classList.add('show');
+          animateDecrypt('decrypt-key', hashes[0].slice(0,8)+'...'+hashes[2].slice(-4));
+        },1000);
+      },500);
+    }
+  }
+
+  function animateDecrypt(id, finalText) {
+    const chars = '0123456789ABCDEFabcdef!@#$%^&*';
+    const el = document.getElementById(id);
+    el.classList.add('decrypt-anim');
+    let iteration = 0;
+    const total = 20;
+    const interval = setInterval(() => {
+      el.textContent = finalText.split('').map((char, i) => {
+        if (i < Math.floor(iteration / total * finalText.length)) return char;
+        return chars[Math.floor(Math.random() * chars.length)];
+      }).join('');
+      iteration++;
+      if (iteration >= total) {
+        clearInterval(interval);
+        el.textContent = finalText;
+        el.classList.remove('decrypt-anim');
+        el.style.color = '#5DCAA5';
+      }
+    }, 60);
+  }
+
+  function reset() {
+    for(let i=0;i<3;i++){
+      approved[i]=false;
+      const c=document.getElementById('card-'+i);
+      c.className='party-card';
+      document.getElementById('hash-'+i).style.display='none';
+      document.getElementById('ts-'+i).style.display='none';
+      document.getElementById('pd-'+i).classList.remove('active');
+    }
+    document.getElementById('prog-fill').style.width='0%';
+    document.getElementById('prog-count').textContent='0 / 3 onay tamamlandı';
+    document.getElementById('status-pill').textContent='Kilit Aktif';
+    document.getElementById('status-pill').classList.remove('unlocked');
+    document.getElementById('unlock-panel').classList.remove('show');
+    document.getElementById('decrypt-key').textContent='Hesaplanıyor...';
+    document.getElementById('approval-records').innerHTML='';
+    approvalRecs.length=0;
+    t0=Date.now();
+    document.getElementById('log-box').innerHTML='';
+    addLog('SİSTEM','AES-256-GCM kilidi aktif · Biyometrik veri şifreli','warn');
+    addLog('SİSTEM','3/3 yetkili imza bekleniyor · Eşik şeması aktif','dim');
+    addLog('GÜVENLİK','Oturum başlatıldı · Tüm erişim girişimleri loglanıyor','dim');
+  }
+
+  reset();
+</script>
+</body>
+</html>
