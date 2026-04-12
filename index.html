@@ -12,20 +12,21 @@
     /* ── TOP BAR ── */
     .topbar {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 24px; height: 52px;
+      padding: 0 16px; height: 44px;
       background: #fff; border-bottom: 1px solid #e2e8f0;
     }
-    .topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
-    .topbar-title { font-size: 15px; font-weight: 600; color: #0f172a; white-space: nowrap; flex-shrink: 0; }
-    .topbar-meta { font-size: 11px; color: #94a3b8; font-family: 'IBM Plex Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .topbar-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+    .topbar-title { font-size: 14px; font-weight: 700; color: #0f172a; white-space: nowrap; flex-shrink: 0; letter-spacing: -0.2px; }
+    .topbar-meta { font-size: 10px; color: #cbd5e1; font-family: 'IBM Plex Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .topbar-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
     .topbar-right { display: flex; align-items: center; gap: 8px; }
 
-    .pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 99px; border: 1px solid; white-space: nowrap; }
+    .pill { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 99px; border: 1px solid; white-space: nowrap; }
     .pill-lock  { background: #fef9ec; color: #b45309; border-color: #fcd34d; }
     .pill-open  { background: #ecfdf5; color: #065f46; border-color: #6ee7b7; }
     .pill-warn  { background: #fff7ed; color: #9a3412; border-color: #fdba74; }
     .pill-live  { background: #ecfdf5; color: #065f46; border-color: #6ee7b7; font-family: 'IBM Plex Mono', monospace; font-size: 10px; }
-    .pill-dot   { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .pill-dot   { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 
     .lang-btn { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 1px; padding: 4px 11px; border-radius: 6px; cursor: pointer; background: #1e293b; border: 1px solid #334155; color: #f1f5f9; }
     .lang-btn:hover { background: #0f172a; }
