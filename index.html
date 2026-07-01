@@ -90,6 +90,18 @@
     .party-approved-label { font-size: 12px; color: #059669; font-weight: 600; text-align: center; display: none; }
     .party-card.approved .party-approved-label { display: block; }
     .party-card.approved .party-btn { display: none; }
+    .party-inst { font-size: 11px; color: #475569; font-family: 'IBM Plex Mono', monospace; margin-bottom: 4px; }
+    .party-share { font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 600; letter-spacing: 0.5px; color: #475569; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 5px; padding: 1px 6px; }
+
+    /* ── PANOPTICON NOTE + SINGLE-KEY HINT ── */
+    .panopticon-note { display: flex; align-items: flex-start; gap: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-left: 3px solid #334155; border-radius: 10px; padding: 12px 15px; margin-bottom: 16px; font-size: 12.5px; color: #334155; line-height: 1.65; }
+    .panopticon-note strong { color: #0f172a; }
+    .panopticon-note .pn-ico { font-size: 15px; line-height: 1.4; flex-shrink: 0; }
+    .single-key-hint { display: none; align-items: center; gap: 8px; background: #fff7ed; border: 1px solid #fdba74; border-radius: 8px; padding: 9px 13px; margin-bottom: 14px; font-size: 12px; color: #9a3412; font-weight: 500; }
+    .single-key-hint.show { display: flex; }
+    .single-key-hint .sk-ico { font-size: 14px; flex-shrink: 0; }
+    .thresh-marker { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #059669; font-weight: 600; }
+    .sim-note { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #94a3b8; margin-bottom: 16px; letter-spacing: 0.02em; }
 
     /* ── PROGRESS ── */
     .progress-section { margin-bottom: 20px; }
@@ -155,6 +167,17 @@
     .mbtn.primary:hover { background: #1e293b; }
 
     .divider { height: 1px; background: #f1f5f9; margin: 0 0 20px; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 640px) {
+      .content { padding: 16px; }
+      .info-grid { grid-template-columns: repeat(2, 1fr); }
+      .parties-grid { grid-template-columns: 1fr; }
+      .unlock-cols { grid-template-columns: 1fr; }
+      .unlock-col:first-child { border-right: none; border-bottom: 1px solid #bbf7d0; }
+      .filterbar { flex-wrap: wrap; gap: 6px 10px; padding: 10px 16px; }
+      .modal { width: calc(100vw - 32px); }
+    }
   </style>
 </head>
 <body>
@@ -170,7 +193,7 @@
   </div>
   <div class="topbar-row2">
     <span class="pill pill-lock" id="status-pill" data-tr="Kilit Aktif" data-en="Lock Active">Kilit Aktif</span>
-    <span class="pill pill-warn" id="pending-pill"><span class="pill-dot"></span><span id="pending-txt" data-tr="3 İmza Bekleniyor" data-en="3 Signatures Pending">3 İmza Bekleniyor</span></span>
+    <span class="pill pill-warn" id="pending-pill"><span class="pill-dot"></span><span id="pending-txt" data-tr="2 onay gerekli" data-en="2 approvals required">2 onay gerekli</span></span>
     <span class="pill pill-live"><span class="pill-dot"></span><span id="live-clock">00:00:00</span></span>
   </div>
 </div>
@@ -192,17 +215,19 @@
 <!-- CONTENT -->
 <div class="content">
 
+  <div class="sim-note" data-tr="⚠ İnteraktif simülasyon — operasyonel değil · temsili senaryo, örnek/sentetik değerler" data-en="⚠ Interactive simulation — not operational · illustrative scenario, sample/synthetic values">⚠ İnteraktif simülasyon — operasyonel değil · temsili senaryo, örnek/sentetik değerler</div>
+
   <!-- 01 INFO CARDS -->
   <div class="sec-header">
     <div class="sec-title">
       <span class="sec-num">01</span>
       <span class="sec-name" id="sec1-name" data-tr="Dosya Bilgisi" data-en="File Information">Dosya Bilgisi</span>
     </div>
-    <span class="sec-meta">ICAO Ek-13 · 3/3 Eşik Şeması</span>
+    <span class="sec-meta" data-tr="ICAO Ek-13 · 2/3 Eşik Şeması" data-en="ICAO Annex-13 · 2/3 Threshold Scheme">ICAO Ek-13 · 2/3 Eşik Şeması</span>
   </div>
   <div class="info-grid">
     <div class="info-card"><div class="ic-label" data-tr="Şifreleme" data-en="Encryption">Şifreleme</div><div class="ic-value">AES-256-GCM</div></div>
-    <div class="info-card"><div class="ic-label" data-tr="Eşik Şeması" data-en="Threshold Schema">Eşik Şeması</div><div class="ic-value">3 / 3</div></div>
+    <div class="info-card"><div class="ic-label" data-tr="Eşik Şeması" data-en="Threshold Schema">Eşik Şeması</div><div class="ic-value">2 / 3</div></div>
     <div class="info-card"><div class="ic-label" data-tr="Veri Boyutu" data-en="Data Size">Veri Boyutu</div><div class="ic-value">14.7 MB</div></div>
     <div class="info-card"><div class="ic-label" data-tr="Kayıt Sayısı" data-en="Record Count">Kayıt Sayısı</div><div class="ic-value">1,847</div></div>
   </div>
@@ -215,18 +240,24 @@
       <span class="sec-num">02</span>
       <span class="sec-name" id="sec2-name" data-tr="Yetkili Taraflar" data-en="Authorized Parties">Yetkili Taraflar</span>
     </div>
-    <span class="sec-meta" id="sec2-meta" data-tr="Yetki kodu ile onay gerekiyor" data-en="Authorization code required">Yetki kodu ile onay gerekiyor</span>
+    <span class="sec-meta" id="sec2-meta" data-tr="Herhangi 2 emanetçi onayı yeterli" data-en="Any 2 custodian approvals suffice">Herhangi 2 emanetçi onayı yeterli</span>
+  </div>
+
+  <div class="panopticon-note">
+    <span class="pn-ico">🔑</span>
+    <span data-tr="Üç bağımsız emanetçiden yalnızca <strong>ikisi eşzamanlı onay</strong> verince kilit açılır; <strong>tek bir taraf tek başına açamaz</strong>. Anahtar üç paya (Shamir 2/3) bölünmüştür — güç tek elde değildir." data-en="The lock opens only when <strong>two of three independent custodians approve together</strong>; <strong>no single party can open it alone</strong>. The key is split into three shares (Shamir 2/3) — power rests in no single hand.">Üç bağımsız emanetçiden yalnızca <strong>ikisi eşzamanlı onay</strong> verince kilit açılır; <strong>tek bir taraf tek başına açamaz</strong>. Anahtar üç paya (Shamir 2/3) bölünmüştür — güç tek elde değildir.</span>
   </div>
 
   <div class="parties-grid">
     <div class="party-card" id="card-0" onclick="openModal(0)">
       <div class="party-top">
-        <div class="party-avatar" id="av-0">SHGM<br>2026</div>
+        <div class="party-avatar" id="av-0">PAY<br>A</div>
         <div class="party-status"></div>
       </div>
-      <div class="party-name">SHGM</div>
-      <div class="party-role" data-tr="Sivil Havacılık Genel Müdürlüğü" data-en="Directorate General of Civil Aviation">Sivil Havacılık Genel Müdürlüğü</div>
-      <div class="party-geo">Ankara, TR · 39.9208°N 32.8541°E</div>
+      <div class="party-name" data-tr="İnceleme Otoritesi" data-en="Review Authority">İnceleme Otoritesi</div>
+      <div class="party-inst">NTSB · <span class="party-share">PAY A</span></div>
+      <div class="party-role" data-tr="Bağımsız Kaza Soruşturma Kurulu" data-en="Independent Accident Investigation Board">Bağımsız Kaza Soruşturma Kurulu</div>
+      <div class="party-geo">Washington DC, US · 38.8951°N 77.0364°W</div>
       <div class="party-hash" id="hash-0"></div>
       <div class="party-ts" id="ts-0"></div>
       <button class="party-btn" data-tr="Yetki Kodunu Gir" data-en="Enter Authorization Code">Yetki Kodunu Gir</button>
@@ -234,10 +265,11 @@
     </div>
     <div class="party-card" id="card-1" onclick="openModal(1)">
       <div class="party-top">
-        <div class="party-avatar" id="av-1">IFAL<br>2026</div>
+        <div class="party-avatar" id="av-1">PAY<br>B</div>
         <div class="party-status"></div>
       </div>
-      <div class="party-name">IFALPA</div>
+      <div class="party-name" data-tr="Pilot Sendikası" data-en="Pilot Union">Pilot Sendikası</div>
+      <div class="party-inst">IFALPA · <span class="party-share">PAY B</span></div>
       <div class="party-role" data-tr="Uluslararası Pilotlar Dernekleri Federasyonu" data-en="International Federation of Airline Pilots' Associations">Uluslararası Pilotlar Dernekleri Federasyonu</div>
       <div class="party-geo">Montréal, CA · 45.5017°N 73.5673°W</div>
       <div class="party-hash" id="hash-1"></div>
@@ -247,12 +279,13 @@
     </div>
     <div class="party-card" id="card-2" onclick="openModal(2)">
       <div class="party-top">
-        <div class="party-avatar" id="av-2">NTSB<br>2026</div>
+        <div class="party-avatar" id="av-2">PAY<br>C</div>
         <div class="party-status"></div>
       </div>
-      <div class="party-name">NTSB</div>
-      <div class="party-role" data-tr="Bağımsız Kaza Soruşturma Kurulu" data-en="Independent Accident Investigation Board">Bağımsız Kaza Soruşturma Kurulu</div>
-      <div class="party-geo">Washington DC, US · 38.8951°N 77.0364°W</div>
+      <div class="party-name" data-tr="Yargı" data-en="Judiciary">Yargı</div>
+      <div class="party-inst" data-tr='Bağımsız Yargı Mercii · <span class="party-share">PAY C</span>' data-en='Independent Judicial Authority · <span class="party-share">PAY C</span>'>Bağımsız Yargı Mercii · <span class="party-share">PAY C</span></div>
+      <div class="party-role" data-tr="Adli gözetim mercii" data-en="Judicial oversight authority">Adli gözetim mercii</div>
+      <div class="party-geo" data-tr="Yetki alanı atanacak · adli merci" data-en="Jurisdiction to be assigned · judicial">Yetki alanı atanacak · adli merci</div>
       <div class="party-hash" id="hash-2"></div>
       <div class="party-ts" id="ts-2"></div>
       <button class="party-btn" data-tr="Yetki Kodunu Gir" data-en="Enter Authorization Code">Yetki Kodunu Gir</button>
@@ -268,7 +301,12 @@
       <span class="sec-num">03</span>
       <span class="sec-name" id="sec3-name" data-tr="Onay İlerlemesi" data-en="Approval Progress">Onay İlerlemesi</span>
     </div>
-    <span class="sec-meta" id="prog-count">0 / 3</span>
+    <span class="sec-meta" id="prog-count">0 / 2</span>
+  </div>
+
+  <div class="single-key-hint" id="single-key-hint">
+    <span class="sk-ico">⚠️</span>
+    <span data-tr="Tek pay tek başına anlamsız — kilidi açmak için 1 onay daha gerekli (eşik 2/3)." data-en="A single share alone is meaningless — 1 more approval needed to open the lock (2/3 threshold).">Tek pay tek başına anlamsız — kilidi açmak için 1 onay daha gerekli (eşik 2/3).</span>
   </div>
 
   <div class="progress-section">
@@ -277,8 +315,9 @@
         <div class="prog-dot" id="pd-0"></div>
         <div class="prog-dot" id="pd-1"></div>
         <div class="prog-dot" id="pd-2"></div>
+        <span class="thresh-marker" data-tr="eşik 2/3" data-en="threshold 2/3">eşik 2/3</span>
       </div>
-      <span class="prog-count" id="prog-label" data-tr="imza tamamlandı" data-en="signatures completed">imza tamamlandı</span>
+      <span class="prog-count" id="prog-label" data-tr="imza · eşik 2/3" data-en="signatures · 2/3 threshold">imza · eşik 2/3</span>
     </div>
     <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
   </div>
@@ -294,7 +333,7 @@
   <!-- UNLOCK PANEL -->
   <div class="unlock-panel" id="unlock-panel">
     <div class="unlock-header">
-      <div class="unlock-hl" id="unlock-hl" data-tr="▶ ERİŞİM AÇILDI · CDSA PROTOKOLÜ · 3/3 ONAY" data-en="▶ ACCESS GRANTED · CDSA PROTOCOL · 3/3 APPROVED">▶ ERİŞİM AÇILDI · CDSA PROTOKOLÜ · 3/3 ONAY</div>
+      <div class="unlock-hl" id="unlock-hl" data-tr="▶ ERİŞİM AÇILDI · CDSA PROTOKOLÜ · 2/3 ONAY" data-en="▶ ACCESS GRANTED · CDSA PROTOCOL · 2/3 APPROVED">▶ ERİŞİM AÇILDI · CDSA PROTOKOLÜ · 2/3 ONAY</div>
       <div class="unlock-hr" id="unlock-time"></div>
     </div>
     <div class="unlock-cols">
@@ -345,19 +384,21 @@
   const T = {
     tr: {
       pillLocked: 'Kilit Aktif', pillOpen: 'Kilit Açıldı',
-      pending: (n) => n + ' İmza Bekleniyor',
-      progCount: (n) => n + ' / 3',
-      progLabel: 'imza tamamlandı',
+      pending: (n) => n > 0 ? n + ' onay gerekli' : 'Eşik karşılandı',
+      progCount: (n) => n + ' / 2',
+      progLabel: 'imza · eşik 2/3',
+      parties: ['İnceleme Otoritesi', 'Pilot Sendikası', 'Yargı'],
       verifyWindow: 'Yetki doğrulama penceresi açıldı · ',
       codeOk: 'Yetki kodu doğrulandı · Kriptografik imza oluşturuluyor',
       sha: 'SHA-256: ', locTime: 'Konum: ', at: ' · Zaman: ',
-      sysThreshold: '3/3 eşiği aşıldı · Shamir anahtar birleştirme başlatıldı',
+      sysThreshold: '2/3 eşiği karşılandı · Shamir anahtar birleştirme başlatıldı',
       sysDecrypt: 'AES-256-GCM deşifre tamamlandı · 14.7 MB / 1847 kayıt',
       sysDiag: 'Tanısal bulgular hazır · Sinsi hipoksi tespit edildi',
       gdpr: 'MD.25 uyumlu erişim logu oluşturuldu · ICAO EK-13',
       sec: 'Adil Kültür güvencesi aktif · Salt soruşturma amaçlı',
       initLock: 'AES-256-GCM kilidi aktif · Biyometrik veri şifreli',
-      initWait: '3/3 yetkili imza bekleniyor · Eşik şeması aktif',
+      initWait: '2/3 eşik · en az 2 bağımsız imza bekleniyor',
+      singleShare: 'Tek pay algılandı · eşik için 1 imza daha gerekli',
       initLog:  'Oturum başlatıldı · Tüm erişim girişimleri loglanıyor',
       errCode: 'HATA · Geçersiz yetki kodu · Erişim reddedildi',
       modalTitle: ' · Yetki Doğrulama',
@@ -365,23 +406,25 @@
       modalLbl: 'Yetki Kodu',
       modalErr: 'Geçersiz yetki kodu. Lütfen tekrar deneyin.',
       cancel: 'İptal', verify: 'Doğrula ve İmzala',
-      unlockHl: '▶ ERİŞİM AÇILDI · CDSA PROTOKOLÜ · 3/3 ONAY',
+      unlockHl: '▶ ERİŞİM AÇILDI · CDSA PROTOKOLÜ · 2/3 ONAY',
     },
     en: {
       pillLocked: 'Lock Active', pillOpen: 'Access Granted',
-      pending: (n) => n + ' Signatures Pending',
-      progCount: (n) => n + ' / 3',
-      progLabel: 'signatures completed',
+      pending: (n) => n > 0 ? n + ' approvals required' : 'Threshold met',
+      progCount: (n) => n + ' / 2',
+      progLabel: 'signatures · 2/3 threshold',
+      parties: ['Review Authority', 'Pilot Union', 'Judiciary'],
       verifyWindow: 'Authorization window opened · ',
       codeOk: 'Authorization code verified · Generating cryptographic signature',
       sha: 'SHA-256: ', locTime: 'Location: ', at: ' · Time: ',
-      sysThreshold: '3/3 threshold reached · Shamir key reconstruction initiated',
+      sysThreshold: '2/3 threshold reached · Shamir key reconstruction initiated',
       sysDecrypt: 'AES-256-GCM decryption complete · 14.7 MB / 1847 records',
       sysDiag: 'Diagnostic findings ready · Insidious hypoxia detected',
       gdpr: 'ART.25 compliant access log created · ICAO ANNEX-13',
       sec: 'Just Culture assurance active · Investigation use only',
       initLock: 'AES-256-GCM lock active · Biometric data encrypted',
-      initWait: 'Awaiting 3/3 authorized signatures · Threshold scheme active',
+      initWait: '2/3 threshold · awaiting at least 2 independent signatures',
+      singleShare: 'Single share detected · 1 more signature needed for threshold',
       initLog:  'Session started · All access attempts being logged',
       errCode: 'ERROR · Invalid authorization code · Access denied',
       modalTitle: ' · Authorization Verification',
@@ -389,33 +432,35 @@
       modalLbl: 'Authorization Code',
       modalErr: 'Invalid authorization code. Please try again.',
       cancel: 'Cancel', verify: 'Verify & Sign',
-      unlockHl: '▶ ACCESS GRANTED · CDSA PROTOCOL · 3/3 APPROVED',
+      unlockHl: '▶ ACCESS GRANTED · CDSA PROTOCOL · 2/3 APPROVED',
     }
   };
 
+  const THRESHOLD = 2, CUSTODIANS = 3;
   const approved = [false,false,false];
   const hashes = ['a3f9c2d1e8b74f6a9c3d','c71e4a2b9d8f3e5c7a1b','f2b8e1d4c9a7f3b2d6e9'];
-  const codes = ['SHGM2026','IFAL2026','NTSB2026'];
-  const names = ['SHGM','IFALPA','NTSB'];
+  const codes = ['NTSB2026','IFAL2026','YRGI2026'];
+  const partyTags = ['NTSB','IFALPA','YARGI'];          // neutral log/modal tags
   const hints = {
-    tr: ['İpucu: SHGM-XXXX','İpucu: IFAL-XXXX','İpucu: NTSB-XXXX'],
-    en: ['Hint: SHGM-XXXX','Hint: IFAL-XXXX','Hint: NTSB-XXXX']
+    tr: ['İpucu: NTSB-XXXX','İpucu: IFAL-XXXX','İpucu: YRGI-XXXX'],
+    en: ['Hint: NTSB-XXXX','Hint: IFAL-XXXX','Hint: YRGI-XXXX']
   };
   const geoTexts = {
     tr: [
-      'Kurum : SHGM Genel Müdürlüğü\nKonum : Ankara, Türkiye\nKoord : 39.9208°N, 32.8541°E\nİP Adr: 193.140.xxx.xxx [TR-GOV]\nOturum: #SHG-20260410-0931',
-      'Kurum : IFALPA Headquarters\nKonum : Montréal, Kanada\nKoord : 45.5017°N, 73.5673°W\nİP Adr: 142.44.xxx.xxx [CA-ORG]\nOturum: #IFA-20260410-0931',
-      'Kurum : NTSB Washington HQ\nKonum : Washington DC, ABD\nKoord : 38.8951°N, 77.0364°W\nİP Adr: 74.125.xxx.xxx [US-GOV]\nOturum: #NTS-20260410-0931'
+      'Kurum : NTSB Washington HQ\nRol   : İnceleme Otoritesi (Pay A)\nKonum : Washington DC, ABD\nKoord : 38.8951°N, 77.0364°W\nOturum: #NTS-20260410-0931',
+      'Kurum : IFALPA Headquarters\nRol   : Pilot Sendikası (Pay B)\nKonum : Montréal, Kanada\nKoord : 45.5017°N, 73.5673°W\nOturum: #IFA-20260410-0931',
+      'Merci : Bağımsız Yargı Mercii\nRol   : Yargı (Pay C)\nKonum : Atanacak\nYetki : Adli gözetim\nOturum: #JUD-20260410-0931'
     ],
     en: [
-      'Org    : SHGM Directorate General\nLocation: Ankara, Turkey\nCoords : 39.9208°N, 32.8541°E\nIP Addr: 193.140.xxx.xxx [TR-GOV]\nSession: #SHG-20260410-0931',
-      'Org    : IFALPA Headquarters\nLocation: Montréal, Canada\nCoords : 45.5017°N, 73.5673°W\nIP Addr: 142.44.xxx.xxx [CA-ORG]\nSession: #IFA-20260410-0931',
-      'Org    : NTSB Washington HQ\nLocation: Washington DC, USA\nCoords : 38.8951°N, 77.0364°W\nIP Addr: 74.125.xxx.xxx [US-GOV]\nSession: #NTS-20260410-0931'
+      'Org    : NTSB Washington HQ\nRole   : Review Authority (Share A)\nLocation: Washington DC, USA\nCoords : 38.8951°N, 77.0364°W\nSession: #NTS-20260410-0931',
+      'Org    : IFALPA Headquarters\nRole   : Pilot Union (Share B)\nLocation: Montréal, Canada\nCoords : 45.5017°N, 73.5673°W\nSession: #IFA-20260410-0931',
+      'Body   : Independent Judicial Authority\nRole   : Judiciary (Share C)\nLocation: To be assigned\nMandate: Judicial oversight\nSession: #JUD-20260410-0931'
     ]
   };
-  const locs = ['Ankara,TR','Montréal,CA','Washington,US'];
+  const locs = ['Washington,US','Montréal,CA','—'];
   const approvalRecs = [];
   let active = -1, t0 = Date.now();
+  const approvedCount = () => approved.filter(Boolean).length;
 
   // Clock
   function tickClock() {
@@ -448,16 +493,17 @@
       const v=el.getAttribute('data-'+lang);
       if(v) el.innerHTML=v;
     });
-    const count = approved.filter(Boolean).length;
-    document.getElementById('prog-count').textContent = T[lang].progCount(count);
-    document.getElementById('pending-txt').textContent = T[lang].pending(3-count);
+    const count = approvedCount();
+    document.getElementById('prog-count').textContent = T[lang].progCount(Math.min(count,THRESHOLD));
+    document.getElementById('pending-txt').textContent = T[lang].pending(Math.max(0,THRESHOLD-count));
     document.getElementById('prog-label').textContent = T[lang].progLabel;
   }
 
   function openModal(i) {
     if(approved[i]) return;
+    if(approvedCount()>=THRESHOLD) return;   // threshold already met — 3rd share unnecessary
     active=i;
-    document.getElementById('modal-title').textContent = names[i]+T[lang].modalTitle;
+    document.getElementById('modal-title').textContent = T[lang].parties[i]+T[lang].modalTitle;
     document.getElementById('modal-sub').textContent = T[lang].modalSub;
     document.getElementById('modal-geo').textContent = geoTexts[lang][i];
     document.getElementById('modal-lbl').textContent = T[lang].modalLbl;
@@ -469,7 +515,7 @@
     document.getElementById('modal-inp').value='';
     document.getElementById('overlay').classList.add('show');
     setTimeout(()=>document.getElementById('modal-inp').focus(),100);
-    addLog(names[i], T[lang].verifyWindow+locs[i], 'warn');
+    addLog(partyTags[i], T[lang].verifyWindow+locs[i], 'warn');
   }
 
   function closeModal() { document.getElementById('overlay').classList.remove('show'); active=-1; }
@@ -491,7 +537,7 @@
     if(inp!==codes[i]) {
       document.getElementById('modal-err').style.display='block';
       document.getElementById('card-'+i).classList.add('rejected');
-      addLog(names[i], T[lang].errCode, 'err');
+      addLog(partyTags[i], T[lang].errCode, 'err');
       setTimeout(()=>document.getElementById('card-'+i).classList.remove('rejected'),600);
       return;
     }
@@ -504,16 +550,21 @@
     document.getElementById('card-'+i).classList.add('approved');
     document.getElementById('hash-'+i).textContent='SHA-256: '+hashes[i];
     document.getElementById('ts-'+i).textContent='⏱ '+u+' · '+locs[i];
-    const count=approved.filter(Boolean).length;
+    const count=approvedCount();
     document.getElementById('pd-'+(count-1)).classList.add('active');
-    document.getElementById('prog-fill').style.width=Math.round((count/3)*100)+'%';
-    document.getElementById('prog-count').textContent=T[lang].progCount(count);
-    document.getElementById('pending-txt').textContent=T[lang].pending(3-count);
-    addLog(names[i], T[lang].codeOk, 'ok');
-    addLog(names[i], T[lang].sha+hashes[i], 'ok');
-    addLog(names[i], T[lang].locTime+locs[i]+T[lang].at+u, 'ok');
-    approvalRecs.push('✓ '+names[i]+' · SHA-256:'+hashes[i].slice(0,12)+'... · '+u+' · '+locs[i]);
-    if(count===3) {
+    document.getElementById('prog-fill').style.width=Math.round(Math.min(count/THRESHOLD,1)*100)+'%';
+    document.getElementById('prog-count').textContent=T[lang].progCount(Math.min(count,THRESHOLD));
+    document.getElementById('pending-txt').textContent=T[lang].pending(Math.max(0,THRESHOLD-count));
+    // single-share visualisation: one share alone cannot open the lock
+    const skHint=document.getElementById('single-key-hint');
+    if(count>0 && count<THRESHOLD){ skHint.classList.add('show'); addLog('SEC', T[lang].singleShare, 'warn'); }
+    else { skHint.classList.remove('show'); }
+    addLog(partyTags[i], T[lang].codeOk, 'ok');
+    addLog(partyTags[i], T[lang].sha+hashes[i], 'ok');
+    addLog(partyTags[i], T[lang].locTime+locs[i]+T[lang].at+u, 'ok');
+    approvalRecs.push('✓ '+partyTags[i]+' ('+T[lang].parties[i]+') · SHA-256:'+hashes[i].slice(0,12)+'... · '+u+' · '+locs[i]);
+    if(count===THRESHOLD) {
+      const idx=approved.map((v,k)=>v?k:-1).filter(k=>k>=0);   // the two shares that signed
       setTimeout(()=>{
         addLog('SYSTEM', T[lang].sysThreshold, 'warn');
         setTimeout(()=>{
@@ -529,7 +580,7 @@
           document.getElementById('approval-records').innerHTML=approvalRecs.join('<br>');
           document.getElementById('unlock-hl').textContent=T[lang].unlockHl;
           document.getElementById('unlock-panel').classList.add('show');
-          animateDecrypt('decrypt-key', hashes[0].slice(0,8)+'...'+hashes[2].slice(-4));
+          animateDecrypt('decrypt-key', hashes[idx[0]].slice(0,8)+'...'+hashes[idx[1]].slice(-4));
         },1000);
       },500);
     }
@@ -553,13 +604,14 @@
     for(let i=0;i<3;i++){
       approved[i]=false;
       document.getElementById('card-'+i).className='party-card';
-      document.getElementById('hash-'+i).style.display='none';
-      document.getElementById('ts-'+i).style.display='none';
+      document.getElementById('hash-'+i).textContent='';
+      document.getElementById('ts-'+i).textContent='';
       document.getElementById('pd-'+i).classList.remove('active');
     }
+    document.getElementById('single-key-hint').classList.remove('show');
     document.getElementById('prog-fill').style.width='0%';
     document.getElementById('prog-count').textContent=T[lang].progCount(0);
-    document.getElementById('pending-txt').textContent=T[lang].pending(3);
+    document.getElementById('pending-txt').textContent=T[lang].pending(THRESHOLD);
     const pill=document.getElementById('status-pill');
     pill.textContent=T[lang].pillLocked;
     pill.className='pill pill-lock';
